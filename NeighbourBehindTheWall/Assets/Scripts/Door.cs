@@ -13,11 +13,6 @@ public class Door : MonoBehaviour, IInteractable
         _defaultColor = sprite.color;
     }
 
-    public void Interact(Transform playerTransform)
-    {
-        playerTransform.position = exitDoorPosition.position;
-    }
-
     private void OnMouseEnter()
     {
         sprite.color = highlitedColor;
@@ -31,5 +26,10 @@ public class Door : MonoBehaviour, IInteractable
     private void OnMouseDown()
     {
         
+    }
+
+    public void Interact(PlayerInteraction playerInteraction)
+    {
+        playerInteraction.transform.position = exitDoorPosition.position;
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class InputHandler : MonoBehaviour
 {
@@ -10,7 +11,8 @@ public class InputHandler : MonoBehaviour
     private bool isTouching;
     
     // event
-    public event Action<Vector3> OnTouch;
+    public event Action<Vector3> OnTouchLMB;
+    public event Action<Vector3> OnTouchRMB;
 
     private void Awake()
     {
@@ -32,19 +34,33 @@ public class InputHandler : MonoBehaviour
     
     private void HandleInput()
     {
+        if (EventSystem.current.IsPointerOverGameObject())
+        {
+            return;
+        }
         // desktop
         if (Application.platform == RuntimePlatform.WindowsPlayer || 
             Application.platform == RuntimePlatform.OSXPlayer ||
             Application.platform == RuntimePlatform.LinuxPlayer ||
-            Application.isEditor)
+            Application.isEditor || Application.platform == RuntimePlatform.WebGLPlayer)
         {
             if (Input.GetMouseButtonDown(0))
             {
                 touchPosition = Input.mousePosition;
                 isTouching = true;
-                OnTouch?.Invoke(touchPosition);
+                OnTouchLMB?.Invoke(touchPosition);
             }
             else if (Input.GetMouseButtonUp(0))
+            {
+                isTouching = false;
+            }
+            if (Input.GetMouseButtonDown(1))
+            {
+                touchPosition = Input.mousePosition;
+                isTouching = true;
+                OnTouchRMB?.Invoke(touchPosition);
+            }
+            else if (Input.GetMouseButtonUp(1))
             {
                 isTouching = false;
             }
@@ -60,7 +76,7 @@ public class InputHandler : MonoBehaviour
                 isTouching = touch.phase == TouchPhase.Began || touch.phase == TouchPhase.Moved || touch.phase == TouchPhase.Stationary;
                 if (touch.phase == TouchPhase.Began)
                 {
-                    OnTouch?.Invoke(touchPosition);
+                    OnTouchLMB?.Invoke(touchPosition);
                 }
             }
             else

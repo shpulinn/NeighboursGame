@@ -1,28 +1,51 @@
+using System;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    [SerializeField] private float moveSpeed = 5;
+    [SerializeField] private float moveSpeedNormal = 5;
+    [SerializeField] private float moveSpeedSlow = 2f;
 
+    private float _currentMoveSpeed;
+    
     private bool _isMoving = false;
 
     private Vector3 _movingPosition;
-    
+
+    private void Start()
+    {
+        if (Application.platform == RuntimePlatform.Android ||
+            Application.platform == RuntimePlatform.IPhonePlayer)
+        {
+            // включить UI кнопку для переключения номарльного и медленного шага
+        }
+
+        _currentMoveSpeed = moveSpeedNormal;
+    }
+
     private void Update()
     {
         if (_isMoving == false)
             return;
-         if (Mathf.Abs(transform.position.x - _movingPosition.x) >= 0.1f)
-         {
-             _movingPosition.y = transform.position.y;
-             transform.position = Vector3.MoveTowards(transform.position, _movingPosition, moveSpeed * Time.deltaTime);
-         }
+        if (Mathf.Abs(transform.position.x - _movingPosition.x) >= 0.1f)
+        {
+         _movingPosition.y = transform.position.y;
+         transform.position = Vector3.MoveTowards(transform.position, _movingPosition, _currentMoveSpeed * Time.deltaTime);
+        }
         else _isMoving = false;
     }
 
-    private void HandleTouch(Vector3 position)
+    private void HandleTouchLmb(Vector3 position)
     {
-        //Debug.Log("Touch position: " + position);
+        _currentMoveSpeed = moveSpeedNormal;
+        Vector3 worldPosition = Camera.main.ScreenToWorldPoint(new Vector3(position.x, position.y, Camera.main.nearClipPlane)); 
+        _movingPosition = new Vector3(worldPosition.x, worldPosition.y, transform.position.z);
+        _isMoving = true;
+    }
+    
+    private void HandleTouchRmb(Vector3 position)
+    {
+        _currentMoveSpeed = moveSpeedSlow;
         Vector3 worldPosition = Camera.main.ScreenToWorldPoint(new Vector3(position.x, position.y, Camera.main.nearClipPlane)); 
         _movingPosition = new Vector3(worldPosition.x, worldPosition.y, transform.position.z);
         _isMoving = true;
@@ -32,7 +55,8 @@ public class PlayerMovement : MonoBehaviour
     {
         if (InputHandler.Instance != null)
         {
-            InputHandler.Instance.OnTouch += HandleTouch;
+            InputHandler.Instance.OnTouchLMB += HandleTouchLmb;
+            InputHandler.Instance.OnTouchRMB += HandleTouchRmb;
         }
     }
 
@@ -40,7 +64,8 @@ public class PlayerMovement : MonoBehaviour
     {
         if (InputHandler.Instance != null)
         {
-            InputHandler.Instance.OnTouch -= HandleTouch;
+            InputHandler.Instance.OnTouchLMB -= HandleTouchLmb;
+            InputHandler.Instance.OnTouchRMB -= HandleTouchRmb;
         }
     }
 }

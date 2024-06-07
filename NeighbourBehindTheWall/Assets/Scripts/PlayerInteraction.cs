@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class PlayerInteraction : MonoBehaviour
@@ -22,7 +23,7 @@ public class PlayerInteraction : MonoBehaviour
             return;
         }
         
-        _currentInterction.Interact(transform);
+        _currentInterction.Interact(this);
         _currentInterction = null;
     }
 
@@ -47,7 +48,8 @@ public class PlayerInteraction : MonoBehaviour
     {
         if (InputHandler.Instance != null)
         {
-            InputHandler.Instance.OnTouch += HandleTouch;
+            InputHandler.Instance.OnTouchLMB += HandleTouch;
+            InputHandler.Instance.OnTouchRMB += HandleTouch;
         }
     }
 
@@ -55,7 +57,17 @@ public class PlayerInteraction : MonoBehaviour
     {
         if (InputHandler.Instance != null)
         {
-            InputHandler.Instance.OnTouch -= HandleTouch;
+            InputHandler.Instance.OnTouchLMB -= HandleTouch;
+            InputHandler.Instance.OnTouchRMB -= HandleTouch;
         }
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (_currentInteractionTransform == null)
+        {
+            return;
+        }
+        Gizmos.DrawLine(transform.position, _currentInteractionTransform.position);
     }
 }
